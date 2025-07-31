@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buffet Sabor & Arte</title>
+    
+    <!-- Estilos Dinâmicos (serão preenchidos pelo JS) -->
+    <style id="dynamic-styles"></style>
+
+    <!-- Estilos para o Carrossel da Galeria -->
+    <style>
+        @keyframes marquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            animation: marquee 60s linear infinite;
+        }
+        #home-gallery-container:hover .animate-marquee {
+            animation-play-state: paused;
+        }
+    </style>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Seu CSS Personalizado -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-white">
+    <div id="app"><p class="text-center py-20">Carregando site...</p></div>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

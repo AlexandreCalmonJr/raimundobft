@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Painel Administrativo</title>
+    <!-- Tailwind CSS e Google Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="flex h-screen bg-gray-200">
+        <!-- Barra Lateral de Navegação -->
+        <div class="w-64 bg-gray-800 text-white p-5">
+            <h1 class="text-2xl font-bold mb-10">Meu Buffet</h1>
+            <nav>
+                <a href="#config" class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                    <i data-lucide="settings" class="mr-3"></i> Configurações
+                </a>
+                <a href="#servicos" class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 bg-gray-700"> <!-- Link ativo de exemplo -->
+                    <i data-lucide="briefcase" class="mr-3"></i> Serviços
+                </a>
+                <a href="#cardapio" class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                    <i data-lucide="utensils-crossed" class="mr-3"></i> Cardápio
+                </a>
+                <a href="#galeria" class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                    <i data-lucide="image" class="mr-3"></i> Galeria
+                </a>
+                <a href="#testimonials" class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"> <!-- Link Adicionado -->
+                    <i data-lucide="message-square" class="mr-3"></i> Depoimentos
+                </a>
+            </nav>
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Cabeçalho Superior -->
+            <header class="flex justify-between items-center p-4 bg-white border-b">
+                <h2 class="text-xl font-bold">Gerenciar Serviços</h2>
+                <button id="logout-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                    Sair
+                </button>
+            </header>
+            
+            <!-- Área de Conteúdo da Página -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+                <div id="page-content">
+                    <!-- O conteúdo dinâmico (tabelas, formulários) será inserido aqui pelo JavaScript -->
+                    <p>Carregando conteúdo...</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Ativa os ícones do Lucide
+        lucide.createIcons();
+    </script>
+    
+    <!-- Adicione este script -->
+    <script type="module" src="./dashboard.js"></script>
+</body>
+</html>
