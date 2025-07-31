@@ -2,3 +2,7 @@
 body {
     font-family: 'Inter', sans-serif;
 }
+/* Adicione esta regra ao seu arquivo css/style.css */
+.shadow-text {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+}

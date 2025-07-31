@@ -25,48 +25,57 @@ export async function renderConfigPage(contentContainer) {
             
             <!-- Seção de Identidade do Site -->
             <div>
-              <h3 class="text-xl font-semibold mb-4 border-b pb-2">Identidade do Site</h3>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div>
-        <label for="site_name" class="block text-sm font-medium text-gray-700">Nome do Site</label>
-        <input type="text" id="site_name" value="${currentConfig.site_name || ''}" class="mt-1 block w-full p-2 border rounded-md">
-    </div>
-    <div>
-        <label for="site_icon" class="block text-sm font-medium text-gray-700">Ícone de Fallback (Lucide)</label>
-        <input type="text" id="site_icon" value="${currentConfig.site_icon || ''}" class="mt-1 block w-full p-2 border rounded-md">
-    </div>
-</div>
-<div class="mt-6">
-    <label for="logo_image" class="block text-sm font-medium text-gray-700">Logotipo (PNG/SVG)</label>
-    <input type="file" id="logo_image" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-    <div class="mt-4">
-        <p class="text-xs text-gray-500 mb-2">Pré-visualização:</p>
-        <img src="${currentConfig.logo_url || 'https://placehold.co/200x80?text=Logo'}" id="logo-preview" class="h-16 w-auto bg-gray-200 p-2 rounded-md shadow-sm"/>
-    </div>
-</div>
-</div>
-
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Identidade do Site</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="site_name" class="block text-sm font-medium text-gray-700">Nome do Site</label>
+                        <input type="text" id="site_name" value="${currentConfig.site_name || ''}" class="mt-1 block w-full p-2 border rounded-md">
+                    </div>
+                    <div>
+                        <label for="site_icon" class="block text-sm font-medium text-gray-700">Ícone de Fallback (Lucide)</label>
+                        <input type="text" id="site_icon" value="${currentConfig.site_icon || ''}" class="mt-1 block w-full p-2 border rounded-md">
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <label for="logo_image" class="block text-sm font-medium text-gray-700">Logotipo (PNG/SVG)</label>
+                    <input type="file" id="logo_image" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <div class="mt-4">
+                        <p class="text-xs text-gray-500 mb-2">Pré-visualização:</p>
+                        <img src="${currentConfig.logo_url || 'https://placehold.co/200x80?text=Logo'}" id="logo-preview" class="h-16 w-auto bg-gray-200 p-2 rounded-md shadow-sm"/>
+                    </div>
+                </div>
+            </div>
 
             <!-- Seção de Aparência -->
             <div>
                 <h3 class="text-xl font-semibold mb-4 border-b pb-2">Aparência e Cores</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div>
-                        <label for="primary_color" class="block text-sm font-medium text-gray-700">Cor Principal</label>
-                        <input type="color" id="primary_color" value="${currentConfig.primary_color || '#f59e0b'}" class="mt-1 block w-20 h-10 p-1 border rounded-md">
-                    </div>
-                    <div>
-                        <label for="button_color" class="block text-sm font-medium text-gray-700">Cor dos Botões</label>
-                        <input type="color" id="button_color" value="${currentConfig.button_color || '#1d4ed8'}" class="mt-1 block w-20 h-10 p-1 border rounded-md">
-                    </div>
-                     <div>
-                        <label for="font_family" class="block text-sm font-medium text-gray-700">Fonte (Google Fonts)</label>
-                        <input type="text" id="font_family" value="${currentConfig.font_family || 'Inter'}" placeholder="Ex: Roboto" class="mt-1 block w-full p-2 border rounded-md">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div>
+                            <label for="primary_color" class="block text-sm font-medium text-gray-700">Cor Principal</label>
+                            <input type="color" id="primary_color" value="${currentConfig.primary_color || '#f59e0b'}" class="mt-1 block w-20 h-10 p-1 border rounded-md">
+                        </div>
+                        <div>
+                            <label for="button_color" class="block text-sm font-medium text-gray-700">Cor dos Botões</label>
+                            <input type="color" id="button_color" value="${currentConfig.button_color || '#1d4ed8'}" class="mt-1 block w-20 h-10 p-1 border rounded-md">
+                        </div>
+                         <div>
+                            <label for="font_family" class="block text-sm font-medium text-gray-700">Fonte (Google Fonts)</label>
+                            <input type="text" id="font_family" value="${currentConfig.font_family || 'Inter'}" placeholder="Ex: Roboto" class="mt-1 block w-full p-2 border rounded-md">
+                        </div>
                     </div>
                     <div>
                         <label for="hero_image" class="block text-sm font-medium text-gray-700">Imagem Principal (Hero)</label>
                         <input type="file" id="hero_image" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         <img src="${currentConfig.hero_image_url || 'https://placehold.co/600x400'}" id="hero-preview" class="mt-4 w-48 h-auto rounded-md shadow-sm"/>
+                    </div>
+                    <div>
+                        <label for="hero_title" class="block text-sm font-medium text-gray-700">Título Principal (Hero)</label>
+                        <input type="text" id="hero_title" value="${currentConfig.hero_title || ''}" class="mt-1 block w-full p-2 border rounded-md">
+                    </div>
+                     <div>
+                        <label for="hero_subtitle" class="block text-sm font-medium text-gray-700">Subtítulo Principal (Hero)</label>
+                        <textarea id="hero_subtitle" rows="2" class="mt-1 block w-full p-2 border rounded-md">${currentConfig.hero_subtitle || ''}</textarea>
                     </div>
                 </div>
             </div>
@@ -174,6 +183,7 @@ function addPageEventListeners() {
     setupImagePreview('hero_image', 'hero-preview');
     setupImagePreview('about_image', 'about-preview');
     setupImagePreview('logo_image', 'logo-preview');
+}
 
 // Função para fazer upload de uma imagem e retornar a URL
 async function uploadImage(file, bucket, namePrefix) {
@@ -200,14 +210,15 @@ async function handleSaveConfig(event) {
     const form = event.target;
     let heroImageUrl = currentConfig.hero_image_url;
     let aboutImageUrl = currentConfig.about_image_url;
-    let logoImageUrl = currentConfig.logo_url;
+    let logoUrl = currentConfig.logo_url; // <-- CORREÇÃO: Esta linha foi adicionada
 
+    // 1. Verifica se novas imagens foram enviadas e faz o upload
     const logoImageFile = form.logo_image.files[0];
     if (logoImageFile) {
-        logoUrl = await uploadImage(logoImageFile, 'galeria', 'logo'); // <-- Adicione esta linha
+        logoUrl = await uploadImage(logoImageFile, 'galeria', 'logo');
         if (!logoUrl) return;
     }
-    // 1. Verifica se novas imagens foram enviadas e faz o upload
+
     const heroImageFile = form.hero_image.files[0];
     if (heroImageFile) {
         heroImageUrl = await uploadImage(heroImageFile, 'galeria', 'hero');
@@ -227,6 +238,8 @@ async function handleSaveConfig(event) {
         primary_color: form.primary_color.value,
         button_color: form.button_color.value,
         font_family: form.font_family.value,
+        hero_title: form.hero_title.value,
+        hero_subtitle: form.hero_subtitle.value,
         footer_text: form.footer_text.value,
         contact_email: form.contact_email.value,
         contact_phone: form.contact_phone.value,
@@ -240,7 +253,7 @@ async function handleSaveConfig(event) {
         about_description_p2: form.about_description_p2.value,
         hero_image_url: heroImageUrl,
         about_image_url: aboutImageUrl,
-        logo_url: logoUrl,
+        logo_url: logoUrl
     };
 
     // 3. Salva os dados no banco de dados
@@ -255,5 +268,4 @@ async function handleSaveConfig(event) {
         alert('Configurações salvas com sucesso!');
         renderConfigPage(document.getElementById('page-content'));
     }
-}
 }
