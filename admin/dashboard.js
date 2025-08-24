@@ -1,20 +1,22 @@
 // admin/dashboard.js
-import { supabase } from './client.js';
-import { renderConfigPage } from './pages/config.js'; // <-- Adicione esta linha
+import { auth } from './client.js';
+// Importa as funções de autenticação do Firebase
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+// Importa as funções que renderizam cada página do painel
+import { renderConfigPage } from './pages/config.js';
 import { renderGaleriaPage } from './pages/galeria.js';
 import { renderServicosPage } from './pages/servicos.js';
 import { renderTestimonialsPage } from './pages/testimonials.js';
-// <-- Correção: Esta linha foi adicionada
 
 // --- SELEÇÃO DE ELEMENTOS ---
-
 const logoutButton = document.getElementById('logout-button');
 const contentContainer = document.getElementById('page-content');
 const pageTitle = document.querySelector('header h2');
 
-// --- ROTEADOR DO PAINEL ---
+// --- ROTEADOR DO PAINEL (Lógica inalterada) ---
 const routes = {
-    '#config': { // <-- Adicione/Atualize esta rota
+    '#config': {
         render: renderConfigPage,
         title: 'Configurações Gerais'
     },
@@ -26,7 +28,7 @@ const routes = {
         render: renderGaleriaPage,
         title: 'Gerenciar Galeria'
     },
-    '#testimonials': { // <-- Adicione esta rota
+    '#testimonials': {
         render: renderTestimonialsPage,
         title: 'Gerenciar Depoimentos'
     },
@@ -37,7 +39,6 @@ const routes = {
 };
 
 function router() {
-    // Define a página padrão como #config
     const path = window.location.hash || '#config'; 
     const route = routes[path];
 
@@ -61,21 +62,31 @@ function updateActiveLink(path) {
     });
 }
 
-// --- AUTENTICAÇÃO E EVENTOS ---
-async function checkUserSession() {
-    const { data, error } = await supabase.auth.getSession();
-    if (error || !data.session) {
+// --- AUTENTICAÇÃO E EVENTOS (Atualizado para Firebase) ---
+// Verifica a sessão do usuário em tempo real
+function checkUserSession() {
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            // Se não houver usuário logado, redireciona para a página de login
+            window.location.href = './login.html';
+        }
+    });
+}
+
+// Função para fazer logout
+async function handleLogout() {
+    try {
+        await signOut(auth);
+        // Redireciona para a página de login após o logout
         window.location.href = './login.html';
+    } catch (error) {
+        console.error("Erro ao fazer logout:", error);
+        alert('Não foi possível sair. Tente novamente.');
     }
 }
 
-async function handleLogout() {
-    await supabase.auth.signOut();
-    window.location.href = './login.html';
-}
-
 // --- INICIALIZAÇÃO ---
-checkUserSession();
+checkUserSession(); // Verifica a sessão assim que o script carrega
 logoutButton.addEventListener('click', handleLogout);
 window.addEventListener('hashchange', router);
 window.addEventListener('load', router);

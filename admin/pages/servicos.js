@@ -1,57 +1,60 @@
 // admin/pages/servicos.js
-import { supabase } from '../client.js';
+import { db } from '../client.js';
+// Importa as funções do Firestore para CRUD
+import { addDoc, collection, deleteDoc, doc, getDocs, orderBy, query, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 // Função principal que renderiza a página de serviços
 export async function renderServicosPage(contentContainer) {
-    // Busca os serviços do banco de dados
-    const { data: servicos, error } = await supabase
-        .from('servicos')
-        .select('*')
-        .order('created_at', { ascending: false });
+    // Cria uma consulta para buscar os serviços ordenados pela data de criação
+    const servicosRef = collection(db, 'servicos');
+    const q = query(servicosRef, orderBy('created_at', 'desc'));
+    
+    try {
+        const querySnapshot = await getDocs(q);
+        const servicos = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    if (error) {
+        // Monta o HTML da página com os dados do Firestore
+        contentContainer.innerHTML = `
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Serviços Cadastrados</h2>
+                <button id="add-service-btn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    Adicionar Serviço
+                </button>
+            </div>
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <table class="min-w-full leading-normal">
+                    <thead>
+                        <tr>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Título</th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Descrição</th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Ícone</th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="services-table-body">
+                        ${servicos.map(servico => `
+                            <tr data-id="${servico.id}">
+                                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">${servico.title}</td>
+                                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">${servico.description}</td>
+                                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">${servico.icon}</td>
+                                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-right">
+                                    <button class="edit-btn bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded text-xs">Editar</button>
+                                    <button class="delete-btn bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs">Excluir</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        // Adiciona os eventos aos botões da página
+        addPageEventListeners(servicos);
+
+    } catch (error) {
         console.error('Erro ao buscar serviços:', error);
         contentContainer.innerHTML = `<p class="text-red-500">Não foi possível carregar os serviços.</p>`;
-        return;
     }
-
-    // Monta o HTML da página
-    contentContainer.innerHTML = `
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-semibold">Serviços Cadastrados</h2>
-            <button id="add-service-btn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                Adicionar Serviço
-            </button>
-        </div>
-        <div class="bg-white shadow-md rounded-lg overflow-hidden">
-            <table class="min-w-full leading-normal">
-                <thead>
-                    <tr>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Título</th>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Descrição</th>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Ícone</th>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100"></th>
-                    </tr>
-                </thead>
-                <tbody id="services-table-body">
-                    ${servicos.map(servico => `
-                        <tr data-id="${servico.id}">
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">${servico.title}</td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">${servico.description}</td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">${servico.icon}</td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-right">
-                                <button class="edit-btn bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded text-xs">Editar</button>
-                                <button class="delete-btn bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs">Excluir</button>
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-    `;
-
-    // Adiciona os eventos aos botões
-    addPageEventListeners(servicos);
 }
 
 // Função para adicionar os eventos da página
@@ -63,7 +66,7 @@ function addPageEventListeners(servicos) {
     document.querySelectorAll('.edit-btn').forEach(button => {
         button.addEventListener('click', (e) => {
             const id = e.target.closest('tr').dataset.id;
-            const servico = servicos.find(s => s.id == id);
+            const servico = servicos.find(s => s.id === id);
             openServiceModal(servico);
         });
     });
@@ -78,10 +81,10 @@ function addPageEventListeners(servicos) {
     });
 }
 
-// Função para abrir o modal de adicionar/editar
+// Função para abrir o modal de adicionar/editar (Lógica inalterada)
 function openServiceModal(servico = null) {
     const modalHTML = `
-        <div id="service-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div id="service-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
                 <h2 class="text-2xl font-bold mb-4">${servico ? 'Editar Serviço' : 'Adicionar Novo Serviço'}</h2>
                 <form id="service-form">
@@ -124,29 +127,29 @@ async function saveService(event) {
         icon: document.getElementById('icon').value,
     };
 
-    let error;
-    if (id) {
-        // Atualiza um serviço existente
-        ({ error } = await supabase.from('servicos').update(serviceData).eq('id', id));
-    } else {
-        // Cria um novo serviço
-        ({ error } = await supabase.from('servicos').insert([serviceData]));
-    }
-
-    if (error) {
-        alert('Erro ao salvar o serviço: ' + error.message);
-    } else {
+    try {
+        if (id) {
+            // Atualiza um serviço existente
+            const docRef = doc(db, 'servicos', id);
+            await updateDoc(docRef, serviceData);
+        } else {
+            // Cria um novo serviço, adicionando um timestamp
+            serviceData.created_at = serverTimestamp();
+            await addDoc(collection(db, 'servicos'), serviceData);
+        }
         document.getElementById('service-modal').remove();
         renderServicosPage(document.getElementById('page-content')); // Recarrega a lista
+    } catch (error) {
+        alert('Erro ao salvar o serviço: ' + error.message);
     }
 }
 
 // Função para deletar um serviço
 async function deleteService(id) {
-    const { error } = await supabase.from('servicos').delete().eq('id', id);
-    if (error) {
-        alert('Erro ao excluir o serviço: ' + error.message);
-    } else {
+    try {
+        await deleteDoc(doc(db, 'servicos', id));
         renderServicosPage(document.getElementById('page-content')); // Recarrega a lista
+    } catch (error) {
+        alert('Erro ao excluir o serviço: ' + error.message);
     }
 }

@@ -1,54 +1,56 @@
 // admin/pages/testimonials.js
-import { supabase } from '../client.js';
+import { db } from '../client.js';
+// Importa as funções do Firestore para CRUD
+import { addDoc, collection, deleteDoc, doc, getDocs, orderBy, query, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 // Função principal que renderiza a página de depoimentos
 export async function renderTestimonialsPage(contentContainer) {
-    const { data: testimonials, error } = await supabase
-        .from('testimonials')
-        .select('*')
-        .order('created_at', { ascending: false });
+    const testimonialsRef = collection(db, 'testimonials');
+    const q = query(testimonialsRef, orderBy('created_at', 'desc'));
+    
+    try {
+        const querySnapshot = await getDocs(q);
+        const testimonials = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    if (error) {
+        contentContainer.innerHTML = `
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Depoimentos de Clientes</h2>
+                <button id="add-testimonial-btn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    Adicionar Depoimento
+                </button>
+            </div>
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <table class="min-w-full leading-normal">
+                    <thead>
+                        <tr>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Autor</th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Depoimento</th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fonte</th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${testimonials.map(item => `
+                            <tr data-id="${item.id}">
+                                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">${item.author_name}</td>
+                                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm w-1/2">${item.testimonial_text}</td>
+                                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">${item.source}</td>
+                                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-right">
+                                    <button class="edit-btn bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded text-xs">Editar</button>
+                                    <button class="delete-btn bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs">Excluir</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        addPageEventListeners(testimonials);
+    } catch (error) {
         console.error('Erro ao buscar depoimentos:', error);
         contentContainer.innerHTML = `<p class="text-red-500">Não foi possível carregar os depoimentos.</p>`;
-        return;
     }
-
-    contentContainer.innerHTML = `
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-semibold">Depoimentos de Clientes</h2>
-            <button id="add-testimonial-btn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                Adicionar Depoimento
-            </button>
-        </div>
-        <div class="bg-white shadow-md rounded-lg overflow-hidden">
-            <table class="min-w-full leading-normal">
-                <thead>
-                    <tr>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Autor</th>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Depoimento</th>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fonte</th>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${testimonials.map(item => `
-                        <tr data-id="${item.id}">
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">${item.author_name}</td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm w-1/2">${item.testimonial_text}</td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">${item.source}</td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-right">
-                                <button class="edit-btn bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded text-xs">Editar</button>
-                                <button class="delete-btn bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs">Excluir</button>
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-    `;
-
-    addPageEventListeners(testimonials);
 }
 
 function addPageEventListeners(testimonials) {
@@ -57,7 +59,7 @@ function addPageEventListeners(testimonials) {
     document.querySelectorAll('.edit-btn').forEach(button => {
         button.addEventListener('click', (e) => {
             const id = e.target.closest('tr').dataset.id;
-            const item = testimonials.find(t => t.id == id);
+            const item = testimonials.find(t => t.id === id);
             openModal(item);
         });
     });
@@ -66,9 +68,12 @@ function addPageEventListeners(testimonials) {
         button.addEventListener('click', async (e) => {
             const id = e.target.closest('tr').dataset.id;
             if (confirm('Tem certeza que deseja excluir este depoimento?')) {
-                const { error } = await supabase.from('testimonials').delete().eq('id', id);
-                if (error) alert('Erro: ' + error.message);
-                else renderTestimonialsPage(document.getElementById('page-content'));
+                try {
+                    await deleteDoc(doc(db, 'testimonials', id));
+                    renderTestimonialsPage(document.getElementById('page-content'));
+                } catch (error) {
+                    alert('Erro ao excluir: ' + error.message);
+                }
             }
         });
     });
@@ -76,7 +81,7 @@ function addPageEventListeners(testimonials) {
 
 function openModal(item = null) {
     const modalHTML = `
-        <div id="testimonial-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div id="testimonial-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
                 <h2 class="text-2xl font-bold mb-4">${item ? 'Editar' : 'Adicionar'} Depoimento</h2>
                 <form id="testimonial-form">
@@ -111,16 +116,21 @@ function openModal(item = null) {
             testimonial_text: document.getElementById('testimonial_text').value,
             source: document.getElementById('source').value,
         };
-        const { error } = id
-            ? await supabase.from('testimonials').update(data).eq('id', id)
-            : await supabase.from('testimonials').insert([data]);
-
-        if (error) alert('Erro: ' + error.message);
-        else {
+        
+        try {
+            if (id) {
+                await updateDoc(doc(db, 'testimonials', id), data);
+            } else {
+                data.created_at = serverTimestamp();
+                await addDoc(collection(db, 'testimonials'), data);
+            }
             document.getElementById('testimonial-modal').remove();
             renderTestimonialsPage(document.getElementById('page-content'));
+        } catch (error) {
+             alert('Erro ao salvar: ' + error.message);
         }
     });
+
     document.getElementById('cancel-btn').addEventListener('click', () => {
         document.getElementById('testimonial-modal').remove();
     });

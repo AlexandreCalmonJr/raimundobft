@@ -1,4 +1,9 @@
-import { supabase } from './client.js';
+// js/main.js
+import { db } from './client.js';
+// Importa as funções do Firestore necessárias para buscar dados
+import { collection, doc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+// Importa os componentes HTML
 import { AboutSectionHTML } from './components/AboutSection.js';
 import { ContactSectionHTML } from './components/ContactSection.js';
 import { FooterHTML } from './components/Footer.js';
@@ -9,44 +14,52 @@ import { NavbarHTML } from './components/Navbar.js';
 import { ServicesSectionHTML } from './components/ServicesSection.js';
 import { TestimonialsSectionHTML } from './components/TestimonialsSection.js';
 
-// --- 1. BUSCA DE DADOS ---
+// --- 1. BUSCA DE DADOS (Atualizado para Firestore) ---
 async function fetchAllData() {
     try {
-        const [
-            { data: configData, error: configError },
-            { data: servicosData, error: servicosError },
-            { data: categoriasData, error: categoriasError },
-            { data: itensData, error: itensError },
-            { data: galeriaData, error: galeriaError },
-            { data: testimonialsData, error: testimonialsError }
-        ] = await Promise.all([
-            supabase.from('site_config').select('*').single(),
-            supabase.from('servicos').select('*'),
-            supabase.from('cardapio_categorias').select('*'),
-            supabase.from('cardapio_itens').select('*'),
-            supabase.from('galeria_imagens').select('*'),
-            supabase.from('testimonials').select('*')
-        ]);
+        // Função auxiliar para buscar todos os documentos de uma coleção
+        const fetchCollection = async (collectionName) => {
+            const querySnapshot = await getDocs(collection(db, collectionName));
+            // Mapeia os documentos para um array de objetos, incluindo o ID de cada um
+            return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        };
 
-        if (configError || servicosError || categoriasError || itensError || galeriaError || testimonialsError) {
-            throw new Error('Erro ao buscar um dos conjuntos de dados.');
-        }
+        // Função para buscar o documento único de configuração
+        const fetchConfig = async () => {
+            // O documento de configuração precisa ter um ID fixo, por exemplo "main_config"
+            const docRef = doc(db, "site_config", "main_config"); 
+            const docSnap = await getDoc(docRef);
+            // Retorna os dados do documento se ele existir
+            return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
+        };
+
+        // Executa todas as buscas de dados em paralelo para otimizar o carregamento
+        const [
+            configData, 
+            servicosData, 
+            galeriaData, 
+            testimonialsData
+        ] = await Promise.all([
+            fetchConfig(),
+            fetchCollection('servicos'),
+            fetchCollection('galeria_imagens'),
+            fetchCollection('testimonials')
+        ]);
 
         return {
             config: configData,
             servicos: servicosData,
-            categorias: categoriasData,
-            itens: itensData,
             galeria: galeriaData,
             testimonials: testimonialsData
         };
     } catch (error) {
-        console.error("Erro ao buscar dados do site:", error);
+        console.error("Erro ao buscar dados do site no Firestore:", error);
+        // Retorna null para que a interface possa exibir uma mensagem de erro
         return null;
     }
 }
 
-// --- 2. ROTEAMENTO E RENDERIZAÇÃO ---
+// --- 2. ROTEAMENTO E RENDERIZAÇÃO (Lógica inalterada) ---
 function setupRouter(data) {
     if (!data || !data.config) {
         document.getElementById('app').innerHTML = `<p class="text-center text-red-500 py-20">Erro ao carregar o conteúdo do site. Tente novamente mais tarde.</p>`;
@@ -95,7 +108,7 @@ function setupRouter(data) {
     router();
 }
 
-// --- 3. LÓGICA DO CARROSSEL E EVENTOS ---
+// --- 3. LÓGICA DO CARROSSEL E EVENTOS (Lógica inalterada) ---
 function startHeroCarousel() {
     const carousel = document.getElementById('hero-carousel');
     if (!carousel) return;
@@ -164,9 +177,11 @@ function addEventListeners() {
     });
 }
 
+// Função de inicialização da aplicação
 async function initializeApp() {
     const data = await fetchAllData();
     setupRouter(data);
 }
 
+// Evento que dispara a inicialização quando o DOM está pronto
 document.addEventListener('DOMContentLoaded', initializeApp);

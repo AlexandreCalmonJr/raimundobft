@@ -1,9 +1,23 @@
-// js/client.js
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+// admin/client.js
+// Este arquivo é idêntico ao js/client.js
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-// Substitua com as suas credenciais do Supabase
-const supabaseUrl = 'https://pyfzzuejdvhrlqfvnjqz.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5Znp6dWVqZHZocmxxZnZuanF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5MTc5MjYsImV4cCI6MjA2OTQ5MzkyNn0.Z0zt5ftX7-xFp1s1_k6GlqD_dwY5CxxySx6ThDTZVUA';
+// --- ATENÇÃO ---
+// Substitua o objeto abaixo pelas credenciais do seu projeto Firebase.
+const firebaseConfig = {
+    apiKey: "AIzaSyC2iT1whsWnjOqpCFM4IaM-rlkrbRFSUX4",
+    authDomain: "raimundos-bft.firebaseapp.com",
+    projectId: "raimundos-bft",
+    storageBucket: "raimundos-bft.firebasestorage.app",
+    messagingSenderId: "665108355675",
+    appId: "1:665108355675:web:4d3cf1f5123f647dcf7d7e"
+};
 
-// Exporta o cliente Supabase
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Inicializa o Firebase
+const app = initializeApp(firebaseConfig);
+
+// Exporta os serviços do Firebase
+export const db = getFirestore(app);
+export const auth = getAuth(app);
